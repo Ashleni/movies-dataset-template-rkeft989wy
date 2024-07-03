@@ -1,8 +1,6 @@
-import altair as alt
 import pandas as pd
 import streamlit as st
 
-# Show the page title and description.
 st.set_page_config(page_title="Recreating the fast food database on Streamlit", page_icon="🍟")
 st.title("🍟 fast food")
 st.write(
@@ -21,47 +19,45 @@ def load_data():
 
 df = load_data()
 
-# Show a multiselect widget with the chains using `st.multiselect`.
+
 chains = st.multiselect(
     "Fast Food chains",
-    df.restaurant.unique(),  # What does this line do?
+    df.restaurant.unique(), 
     ["Mcdonalds", "Chick Fil-A", "Sonic", "Arbys", "Burger King", "Dairy Queen", "Subway", "Taco Bell"],
 )
 
-'''
+cals = st.slider("Calories", 20, 2430, (20, 2430))
 
-# Show a slider widget with the years using `st.slider`.
-years = st.slider("Years", 1986, 2006, (2000, 2016))
+option = st.selectbox("Sort by: ", ("restaurant", "calories") )
+if (option == "restaurant"):
+    index="restaurant"
+    columns="calories"
+    values="item"
+    aggfunc=','.join
+    
+elif (option == "calories"):
+    index="calories"
+    columns="restaurant"
+    values="item"
+    aggfunc=','.join
+    
 
-# Filter the dataframe based on the widget input and reshape it.
-df_filtered = df[(df["genre"].isin(chains)) & (df["year"].between(years[0], years[1]))]
+df_filtered = df[(df["restaurant"].isin(chains)) & (df["calories"].between(cals[0], cals[1]))]
+
+
 df_reshaped = df_filtered.pivot_table(
-    index="year", columns="genre", values="gross", aggfunc="sum", fill_value=0
+    #index="calories", columns="restaurant", values="item"
+    #index="restaurant", columns="calories", values="item", aggfunc=','.join, fill_value=""
+    index=index, columns=columns, values=values, aggfunc=aggfunc, fill_value=""
 )
-df_reshaped = df_reshaped.sort_values(by="year", ascending=False)
+df_reshaped = df_reshaped.sort_values(by=index, ascending=True)
 
 
-# Display the data as a table using `st.dataframe`.
 st.dataframe(
     df_reshaped,
     use_container_width=True,
-    column_config={"year": st.column_config.TextColumn("Year")},
+    column_config={"restaurant": st.column_config.TextColumn("restaurant")},
 )
 
-# Display the data as an Altair chart using `st.altair_chart`.
-df_chart = pd.melt(
-    df_reshaped.reset_index(), id_vars="year", var_name="genre", value_name="gross"
-)
-chart = (
-    alt.Chart(df_chart)
-    .mark_line()
-    .encode(
-        x=alt.X("year:N", title="Year"),
-        y=alt.Y("gross:Q", title="Gross earnings ($)"),
-        color="genre:N",
-    )
-    .properties(height=320)
-)
-st.altair_chart(chart, use_container_width=True)
 
-'''
+
