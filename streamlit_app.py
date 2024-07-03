@@ -3,39 +3,38 @@ import pandas as pd
 import streamlit as st
 
 # Show the page title and description.
-st.set_page_config(page_title="Movies dataset", page_icon="🎬")
-st.title("🎬 Movies dataset")
+st.set_page_config(page_title="Recreating the fast food database on Streamlit", page_icon="🍟")
+st.title("🍟 fast food")
 st.write(
     """
-    This app visualizes data from [The Movie Database (TMDB)](https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata).
-    It shows which movie genre performed best at the box office over the years. Just 
-    click on the widgets below to explore!
+    Recreating an academic project on fast food nutrition info.
     """
 )
 
 
-# Load the data from a CSV. We're caching this so it doesn't reload every time the app
-# reruns (e.g. if the user interacts with the widgets).
-@st.cache_data
+# Load the data 
+@st.cache_data  # What's the importance of this line?
 def load_data():
-    df = pd.read_csv("data/movies_genres_summary.csv")
+    df = pd.read_csv("data/fastfood.csv")
     return df
 
 
 df = load_data()
 
-# Show a multiselect widget with the genres using `st.multiselect`.
-genres = st.multiselect(
-    "Genres",
-    df.genre.unique(),
-    ["Action", "Adventure", "Biography", "Comedy", "Drama", "Horror"],
+# Show a multiselect widget with the chains using `st.multiselect`.
+chains = st.multiselect(
+    "Fast Food chains",
+    df.restaurant.unique(),  # What does this line do?
+    ["Mcdonalds", "Chick Fil-A", "Sonic", "Arbys", "Burger King", "Dairy Queen", "Subway", "Taco Bell"],
 )
+
+'''
 
 # Show a slider widget with the years using `st.slider`.
 years = st.slider("Years", 1986, 2006, (2000, 2016))
 
 # Filter the dataframe based on the widget input and reshape it.
-df_filtered = df[(df["genre"].isin(genres)) & (df["year"].between(years[0], years[1]))]
+df_filtered = df[(df["genre"].isin(chains)) & (df["year"].between(years[0], years[1]))]
 df_reshaped = df_filtered.pivot_table(
     index="year", columns="genre", values="gross", aggfunc="sum", fill_value=0
 )
@@ -64,3 +63,5 @@ chart = (
     .properties(height=320)
 )
 st.altair_chart(chart, use_container_width=True)
+
+'''
